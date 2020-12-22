@@ -3,17 +3,20 @@
 #include<time.h>//this works as our seed in the random function 
 #define N 12//The size of array getting the charges 
 //function prototypes 
-void main_menu();
-void send_money();
-void withdraw_cash();
-void Buy_Airtime();
-void Lipa_na_Mpesa();
+void main_menu();//finished 
+void send_money();//finished
+void withdraw_cash();//finished
+void Buy_Airtime();//finished 
+void Lipa_na_Mpesa();//finished
+void My_Account();//still pending
+void change_pin();//finished
 
+int get_pin;//this is the global variable that stores our PIN
 typedef struct mobile_money
 {//structuture of mobile money
     /* data */
     float amount;
-    int user_pin;
+    int user_pin;//this is what the user will enter
     float charges;
     float balance;
     float transaction_cost;
@@ -25,6 +28,38 @@ mobile amt;//this is  for amount
 mobile charg;//this is for charges 
 mobile pin;//this is for user_pin
 mobile tran;//this id for transaction_cost
+void change_pin(int option,int lower_code,int upper_code){
+    //the user can chage their pin 
+    /*i will write the PIN to a file 
+    I will write an integer to a file 
+    */
+   FILE *FP;//This is the file pointer
+   FP=fopen("pin.txt","w");
+   //the file is opened in append mode
+   //since the pin is an integer we shall use fprintf and fscanf to write an integerto a file 
+   printf("Enter a PIN with numbers (0->9):");
+   scanf("%d",&get_pin);
+   fprintf(FP,"%d",get_pin);//write an integerto a file 
+   fclose(FP);
+   printf("Enter 0 to return to main menu or 1 to change again or press any value(2->9) to terminate:");
+   scanf("%d",&option);
+   if (option==0){
+       //return to main menu
+       system("cls");
+       printf("your Account Balance is:%f\n",bal.balance);
+       main_menu(option,lower_code,upper_code);
+   }
+   else if(option==1){
+       //change password again
+       system("cls");
+       change_pin(option,lower_code,upper_code);
+   }else{
+       //exit from the system
+       exit(0);
+   }
+   //sysntax of fprintf(file_pointer,specifier,variable)
+}//end of function change pin
+
 void send_money(int option,int lower_code,int upper_code){
     //function to be used when sending money
 
@@ -94,7 +129,7 @@ void send_money(int option,int lower_code,int upper_code){
         scanf("%d", &pin.user_pin);
     }
 
-    if (pin.user_pin==2020){
+    if (pin.user_pin==get_pin){
         printf("[%d] confirmed You Have sent->%f\nYour Working Balance is->%f\nTransaction Charges is->%f\n***Thank You for using our services!***\n",send_random_code,amt.amount, bal.balance, charg.charges);
         printf("press (0) to return to main_menu or press any number(1->9) to terminate:");
         scanf("%d",&option);
@@ -130,7 +165,7 @@ void send_money(int option,int lower_code,int upper_code){
 }//end of send_monney function
 
 void withdraw_cash(int option,int lower_code,int upper_code){
-    //generate a random FOUR figure number from 1000 to RAND_MAX ->32767
+    //generate a random  figure number from 1024 to RAND_MAX ->32767
     //use the time function in order to get random values after every call 
     //the time function will act as our seed 
     int withdraw_random_code;//this is the value to display 
@@ -204,7 +239,7 @@ void withdraw_cash(int option,int lower_code,int upper_code){
             printf("Enter Your PIN:");
             scanf("%d", &pin.user_pin);
         }
-        if (pin.user_pin==2020){//base case for the recursion
+        if (pin.user_pin==get_pin){//base case for the recursion
             printf("[%d]confirmed You withdrew %ffrom the Agent number %d\nYour current Balance is->%f\nTransaction cost is->%f\n***Thank You for using our services!***\n",withdraw_random_code,amt.amount,Agent_No, bal.balance, tran.transaction_cost);
             //this should take us back to the main menu and the user can get other option
             printf("press (0) to return to main_menu:\n");
@@ -266,7 +301,7 @@ void Buy_Airtime(int option,int lower_code,int upper_code){
             printf("Enter the PIN:");
             scanf("%d",&pin.user_pin); 
         }
-        if (pin.user_pin==2020){//This is the base case for the recurssion
+        if (pin.user_pin==get_pin){//This is the base case for the recurssion
             printf("[%d]confirmed Your new Airtime Balance is:%f\nYour Account Balance is:%f\n",airtime_random_code,amt.amount,bal.balance);
             //this should take us back to the main menu and the user can get other option
             printf("press (0) to return to main_menu or press any number (1->9)to terminate:");
@@ -314,7 +349,7 @@ void Buy_Airtime(int option,int lower_code,int upper_code){
             scanf("%d",&pin.user_pin);
         }
         
-        if(pin.user_pin==2020){
+        if(pin.user_pin==get_pin){
             printf("[%d]confirmed You Sent %f to this number:%d\n Your Account Balance is:%f\n",airtime_random_code,amt.amount,phone_number,bal.balance);
             //this should take us back to the main menu and the user can get other option
             printf("press (0) to return to main_menu:");
@@ -434,7 +469,7 @@ void Lipa_na_Mpesa(int option,int lower_code,int upper_code){
             printf("Enter PIN:");
             scanf("%d",&pin.user_pin);
         }
-        if(pin.user_pin==2020){
+        if(pin.user_pin==get_pin){
             //display the amount payed 
             printf("[%d]confirmed ksh%f send to [%d] for Account [%d]You were charged ksh %f\nNew Mpesa Blance is ksh%f\n",mpesa_random_code,amt.amount,Business_No,Account_No,charg.charges,bal.balance);
             printf("press (0) to return to main_menu or press any number (1->9) to terminate:");
@@ -469,6 +504,7 @@ void Lipa_na_Mpesa(int option,int lower_code,int upper_code){
             }
         }
     }//end of first otpion
+
     else if (option==2){
         int Till_No;
         printf("Enter the Till NUmber:");
@@ -486,7 +522,7 @@ void Lipa_na_Mpesa(int option,int lower_code,int upper_code){
             printf("insufficient Funds");
         }
 
-        if(pin.user_pin==2020){
+        if(pin.user_pin==get_pin){
             //display the amount payed 
             printf("[%d]confirmed ksh%f paid to [%d] You were charged ksh %f\nNew Mpesa Blance is ksh%f\n",mpesa_random_code,amt.amount,Till_No,charg.charges,bal.balance);
             printf("press (0) to return to main_menu or press any number (1->9) to terminate:\n");
@@ -524,15 +560,62 @@ void Lipa_na_Mpesa(int option,int lower_code,int upper_code){
         }    
 
 
-    }
+    }//END OF SECOND OPTION
    
 }//end of lipa na mpesa function
+
+void My_Account(int option,int lower_code,int upper_code){
+    //get the random code 
+    int account_random_code;//this is the value to display 
+    srand(time(0));
+    account_random_code=(rand()%(upper_code-lower_code+1)+lower_code);//this line will get random values from 1024 to RAND_MAX
+    //this function will be used to get account information
+    /*
+    display the following:
+        ->ministatement
+        ->check balance 
+        ->change PIN
+    get the transactions done on that day
+    for example the paybill,send money,mshwari ,get the charges and the transaction cost   
+    */ 
+   printf("[1].Mini_statement\n[2].check_Blance\n[3].change_PIN\n");
+   printf("Your option:");
+   scanf("%d",&option);
+   if (option==1){
+       //option one will get the ministatement or account information
+       printf("mini statenemt\n");
+        //pending->still working on it 
+
+    }
+    else if(option==2){
+        //here one can check the balance in the account
+        printf("[%d]confirmed your Mpesa new balance is ksh:%f\n",account_random_code,bal.balance);
+        printf("Enter 0 to return to main menu or any number from 1->9 to terminaate the program");
+        scanf("%d",&option);
+        if (option==0){
+            system("cls");
+            printf("your current balance is:%f\n",bal.balance);
+            main_menu(option,lower_code,upper_code);
+        }else{
+            exit(0);
+            //terminate the program
+        }
+        //finished 
+    }
+    else if(option==3){
+        //call the function to change the pin 
+        change_pin(option,lower_code,upper_code);
+        //finished 
+    }
+
+}//end of function
 
 void main_menu(int option,int lower_code,int upper_code){
     //this will display the main window 
     //this is where the user will enter keyboard entries 
     printf("Select: \n");
     printf("1.Send money\n2.withdraw cash\n3.Buy airtime\n4.loans and savings\n5.Lipa na m-pesa\n6.My account\n");
+    printf("---|press  0 to end the program|---\n");
     printf("Your Option:");
     scanf("%d", &option);
     if (option==1){
@@ -551,25 +634,43 @@ void main_menu(int option,int lower_code,int upper_code){
         Lipa_na_Mpesa(option,lower_code,upper_code);
         //lipa na mpesa 
     }
+    else if (option==6){
+        My_Account(option,lower_code,upper_code);
+        //get the account information
+    }
+    else if(option==0){
+        exit(0);
+        //end the program
+    }
 }//end of main_finction
 
 int main(){
     int option; 
     int lower_code=1024;//this will be the lowest codethat can be generated 
-    int upper_code=RAND_MAX;//this is the maximum number that can be generated 
+    int upper_code=RAND_MAX;//this is the maximum number that can be generated
+    //scan the pin.txt file an fetch the new pin 
+    FILE *FK;//file pointer
+    FK=fopen("pin.txt","a+");
+    //open the file in  append mode so that a file can be created if it does not exist  
+    while(!feof(FK)){
+        //while not at the end of file scan the file 
+        //use the feof()->function
+        //fetch the account pin once the program is run since the main function is compiled first
+        fscanf(FK,"%d",&get_pin);
+        //this will peint the password on the screen
+        printf("The password is:%d\n",get_pin);
+        if(get_pin==0){
+            //this informs the user that the file has no password 
+            printf("Kindly press option [6] to register For a password after entering the balance!\n");
+        }
+    }
+    fclose(FK);//close the file with the password 
+
 
     printf("------Welcome to our mobile Money!-----\n");
     printf("Enter your balance:");
     scanf("%f",&bal.balance);
     main_menu(option,lower_code,upper_code);
     return 0;
-    //withdrwa
-    //send
-    //recieve 
-    //buyairtime 
-    //mshwari
-    //kcb
-    //balance 
-
-
-}
+ 
+}//end of program
