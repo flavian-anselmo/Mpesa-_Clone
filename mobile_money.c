@@ -1,6 +1,7 @@
 #include<stdio.h>
 #include<stdlib.h>//used this library so that i can clear the screen 
 #include<time.h>//this works as our seed in the random function 
+//#include "mobile_login.h"//this is an external library for login
 #define N 12//The size of array getting the charges 
 //function prototypes 
 void main_menu();//finished 
@@ -10,8 +11,12 @@ void Buy_Airtime();//finished
 void Lipa_na_Mpesa();//finished
 void My_Account();//still pending
 void change_pin();//finished
+void Login_to_Account();//finished 
 
-int get_pin;//this is the global variable that stores our PIN
+int get_pin;//global variable for storing our PIN
+char account_name[N];//global variable for storing our username
+
+
 typedef struct mobile_money
 {//structuture of mobile money
     /* data */
@@ -28,19 +33,124 @@ mobile amt;//this is  for amount
 mobile charg;//this is for charges 
 mobile pin;//this is for user_pin
 mobile tran;//this id for transaction_cost
+
+void Login_to_Account(int option,int lower_code,int upper_code){
+        //if the user has no password he or she will register for a new one 
+    FILE *FK;
+    FILE *FN;
+    char name[N];//This variable will be used during scanning the file to fetch the username in username.txt file
+    printf("----|WELCOME TO OUR MOBILE MONEY|----\n");
+    printf("[+]]Press [0] to LOGIN or [1] to REGISTER for Account PIN:");
+    scanf("%d",&option);
+    if(option==1){
+        //the user will register for a new PIN
+        FK=fopen("pin.txt","a+");
+        FN=fopen("username.txt","a+");
+        //open the file in append mode
+        printf("Enter your user_name:");
+        scanf("%s",account_name);
+        fprintf(FN,"%s\n",account_name);//write the user_name
+        printf("Enter your PIN:");
+        scanf("%d",&get_pin);
+        fprintf(FK,"%d\n",get_pin);//write the pin
+        //close all files after writing to them
+        fclose(FK); 
+        fclose(FN);
+        system("cls");
+        //now scan to get the PIN and user_name 
+        //open the two files and login
+        FK=fopen("pin.txt","a+");
+        FN=fopen("username.txt","a+");
+        while((!feof(FK)) && (!feof(FN))){
+            //while not at the EOF scan and get the PIN
+            //!feof(FK)
+            fscanf(FK,"%d\n",&get_pin);
+            fscanf(FN,"%s\n",name);
+            //get the username and the PIN
+        }//end of scan
+        //now try and login
+        printf("----|WELCOME TO OUR MOBILE MONEY|----user_name[%s]\n",name);
+        printf("user_name:%s\n",name);
+        printf("Enter PIN:");
+        scanf("%d",&pin.user_pin);//get the pin from the user
+        if(pin.user_pin==get_pin){//validate that the pin is correct
+            printf("----|LOGIN SUCCESSFULL!|-----\n");//log in
+            printf("Enter your balance:");
+            scanf("%f",&bal.balance);
+            system("cls");
+            printf("----|LOGIN SUCCESSFULL!|-----\n");
+            printf("your Balance is:%f\n",bal.balance);
+            main_menu(option,lower_code,upper_code);
+        }
+        else{
+            //if pin is wrong call the function recursively 
+            system("cls");
+            printf("Access was Denied! Try Again!\n");
+            Login_to_Account(option,lower_code,upper_code);
+            
+        }
+        //close the two files 
+        fclose(FK); 
+        fclose(FN);
+    } //end of option 1 
+
+    else if(option==0){
+        //open the TWO files storing the username and the PIN
+        FK=fopen("pin.txt","a+");
+        FN=fopen("username.txt","a+");
+        while((!feof(FK)) && (!feof(FN))){
+            //while not at the EOF scan and get the PIN
+            //!feof(FK)
+            fscanf(FK,"%d",&get_pin);
+            fscanf(FN,"%s",name);
+            //get the username and the PIN
+        }
+        //now check if the credentials are the same
+        printf("----|WELCOME TO OUR MOBILE MONEY|----user_name[%s]\n",name);
+        printf("user_name:%s\n",name);
+        printf("Enter PIN:");
+        scanf("%d",&pin.user_pin);
+        if(pin.user_pin==get_pin){//check if the PIN IS correct
+            printf("----|LOGIN SUCCESSFULL!|-----\n");
+            printf("Enter your balance:");//login successfully
+            scanf("%f",&bal.balance);
+            system("cls");
+            printf("----|LOGIN SUCCESSFULL!|-----\n");
+            printf("your Balance is:%f\n",bal.balance);
+            main_menu(option,lower_code,upper_code);
+        }
+        else{
+            //if the password is wrong call the function recursively
+            system("cls");
+            printf("Access was Denied! Try Again!\n");
+            Login_to_Account(option,lower_code,upper_code);
+            
+        }    
+    } //end of option 0
+}//end of login function
+
 void change_pin(int option,int lower_code,int upper_code){
     //the user can chage their pin 
     /*i will write the PIN to a file 
     I will write an integer to a file 
     */
-   FILE *FP;//This is the file pointer
-   FP=fopen("pin.txt","w");
+   FILE *FP;//This is the file pointer for pin.txt
+   FILE *FN;//file pointer to the username.txt
+   FN=fopen("username.txt","a+");
+   FP=fopen("pin.txt","a+");
+
    //the file is opened in append mode
    //since the pin is an integer we shall use fprintf and fscanf to write an integerto a file 
+   printf("Enter Your User_Name:");
+   scanf("%s",account_name);//i used the scanset so that the user can have a space in his or her name
+   fprintf(FN,"%s\n",account_name);
+
    printf("Enter a PIN with numbers (0->9):");
    scanf("%d",&get_pin);
-   fprintf(FP,"%d",get_pin);//write an integerto a file 
+   fprintf(FP,"%d\n",get_pin);//write an integerto a file 
+
    fclose(FP);
+   fclose(FN);
    printf("Enter 0 to return to main menu or 1 to change again or press any value(2->9) to terminate:");
    scanf("%d",&option);
    if (option==0){
@@ -615,7 +725,7 @@ void main_menu(int option,int lower_code,int upper_code){
     //this is where the user will enter keyboard entries 
     printf("Select: \n");
     printf("1.Send money\n2.withdraw cash\n3.Buy airtime\n4.loans and savings\n5.Lipa na m-pesa\n6.My account\n");
-    printf("---|press  0 to end the program|---\n");
+    printf("---|press  [0] to LOG_OUT or [9] to terminate the program|---\n");
     printf("Your Option:");
     scanf("%d", &option);
     if (option==1){
@@ -639,8 +749,13 @@ void main_menu(int option,int lower_code,int upper_code){
         //get the account information
     }
     else if(option==0){
+        system("cls");
+        Login_to_Account(option,lower_code,upper_code);
+        //logout form the system
+    }
+    else if (option==9){
         exit(0);
-        //end the program
+        //end program
     }
 }//end of main_finction
 
@@ -648,29 +763,8 @@ int main(){
     int option; 
     int lower_code=1024;//this will be the lowest codethat can be generated 
     int upper_code=RAND_MAX;//this is the maximum number that can be generated
-    //scan the pin.txt file an fetch the new pin 
-    FILE *FK;//file pointer
-    FK=fopen("pin.txt","a+");
-    //open the file in  append mode so that a file can be created if it does not exist  
-    while(!feof(FK)){
-        //while not at the end of file scan the file 
-        //use the feof()->function
-        //fetch the account pin once the program is run since the main function is compiled first
-        fscanf(FK,"%d",&get_pin);
-        //this will peint the password on the screen
-        printf("The password is:%d\n",get_pin);
-        if(get_pin==0){
-            //this informs the user that the file has no password 
-            printf("Kindly press option [6] to register For a password after entering the balance!\n");
-        }
-    }
-    fclose(FK);//close the file with the password 
 
-
-    printf("------Welcome to our mobile Money!-----\n");
-    printf("Enter your balance:");
-    scanf("%f",&bal.balance);
-    main_menu(option,lower_code,upper_code);
+    Login_to_Account(option,lower_code,upper_code);//call this function to login to the system
+   
     return 0;
- 
 }//end of program
